@@ -7,7 +7,7 @@ partial class Program
 {
     static void Main(string[] args)
     {
-        Test_SimplePropertyChangedObservable_CalcSubscriber_TwoSubjects();
+        Test_ObjectNodes_Observable_ManySubjects();
 
         Console.ReadLine();
     }
@@ -130,6 +130,44 @@ partial class Program
         var propertyChangedObserver =
             propertyChangedEvents.Subscribe(new CalculationObserver(objects));
 
+        square.Side = 10;
+    }
+
+    private static void Test_ObjectNodes_ManySubjects()
+    {
+        // Arrange
+        var square = Source.GetSquare();
+        var cube1 = new Cube() { Face = square };
+        var cube2 = new Cube() { Face = square };
+        var cube3 = new Cube() { Face = square };
+        var cube4 = new Cube() { Face = square };
+        var rb = new RubixCube() { Cubes = new List<Cube>() { cube1, cube2, cube3, cube4 } };
+
+        // Act
+        var on = new ObjectNode(rb);
+        foreach (var node in on.GetAllChildren())
+            Console.WriteLine(node.ToString());
+
+    }
+
+    private static void Test_ObjectNodes_Observable_ManySubjects()
+    {
+        // Arrange
+        var square = Source.GetSquare();
+        var cube1 = new Cube() { Face = square };
+        var cube2 = new Cube() { Face = square };
+        var cube3 = new Cube() { Face = square };
+        var cube4 = new Cube() { Face = square };
+        var rb = new RubixCube() { Cubes = new List<Cube>() { cube1, cube2, cube3, cube4 } };
+
+        // Act
+        var on = new ObjectNode(rb);
+        var children = on.GetAllChildren();
+        var childObservables = on.GetAllChildren().Select(c => c.ChangesObservable).Where(c => c != null);
+        var observable = Observable.Merge(childObservables);
+        var observer = observable.Subscribe(p => Console.WriteLine($"PropertyChanged: {p.PropertyName}"));
+        var objectobserver = new ObjectObserver(on.GetAllChildren());
+        observable.Subscribe(objectobserver);
         square.Side = 10;
     }
 

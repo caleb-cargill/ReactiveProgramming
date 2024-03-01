@@ -2,6 +2,7 @@
 using ReactiveProgramming.Models;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive.Subjects;
 using System.Reflection;
 
 namespace ReactiveProgramming;
@@ -10,21 +11,48 @@ public class CalculatorBase
 {
     private List<ICalculationObject> subjects;
 
+    private List<ObjectNode> nodes;
+
     public CalculatorBase(List<ICalculationObject> subjects)
     {
         this.subjects = subjects;
+    }
+
+    public CalculatorBase(List<ObjectNode> nodes)
+    {
+        this.nodes = nodes;
+        this.subjects = nodes.Select(n => n.Subject).ToList();
+    }
+
+    public void HandleObjectNodeChanged(ObjectNode node, string propName)
+    {
+        var calcs = DbContext.GetCalculations();
+        var propertyName = propName;
+        var senderName = (node.Subject?.GetType() ?? node.Children?.GetType())?.Name;
+        var toRun = calcs.Where(c => c.MemberArguments.Any(m => m.Subject == senderName && m.Member == propertyName)).ToList();
+        foreach (var calc in toRun)
+        {
+            var target =
+                nodes.Where(n => (n.Equals(node) || n.GetAllChildren().Any(c => c.Equals(node))) && n.Subject?.GetType().GetProperty(calc.Updates) != null && n.Subject?.GetType().Name == calc.UpdatesSubject).FirstOrDefault();
+            if (target == null) return;
+            var result = Calculate(node, target, calc)?.ToString();
+            Console.WriteLine($"Calculation on {target}: {calc.Name} = {result}. Triggered by {propertyName}.");
+            var prop = target.GetType().GetProperty(calc.Updates);
+            prop?.SetValue(target, GetTypedValue(prop, result));
+        }
     }
 
     public void HandlePropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         var calcs = DbContext.GetCalculations();
         var propertyName = e.PropertyName;
-        var toRun = calcs.Where(c => c.MemberArguments.Contains(propertyName)).ToList();
+        var senderName = sender.GetType().Name;
+        var toRun = calcs.Where(c => c.MemberArguments.Any(m => m.Subject == senderName && m.Member == propertyName)).ToList();
         foreach (var calc in toRun)
         {
             var targetSubjects =
                 subjects
-                .Where(o => 
+                .Where(o =>
                     o.GetType().GetProperty(calc.Updates) != null);
             if (!targetSubjects.Any())
                 targetSubjects =
@@ -43,12 +71,12 @@ public class CalculatorBase
         }
     }
 
-    public virtual string? Calculate(object subject, Calculation calculation)
+    public virtual string? Calculate(ObjectNode sender, ObjectNode target, Calculation calculation)
     {
         using (Lua state = new Lua())
         {
             foreach (var arg in calculation.MemberArguments)
-                state[arg] = GetArgValue(arg, subject);
+                state[arg.Member] = GetArgValue(arg.Member, target, sender);
 
             string body = calculation.Body;
 
@@ -57,6 +85,32 @@ public class CalculatorBase
             string? result = state[$"{calculation.Updates}"]?.ToString();
             return result;
         }
+    }
+
+    public virtual string? Calculate(object subject, Calculation calculation)
+    {
+        using (Lua state = new Lua())
+        {
+            foreach (var arg in calculation.MemberArguments)
+                state[arg.Member] = GetArgValue(arg.Member, subject);
+
+            string body = calculation.Body;
+
+            state.DoString(body);
+
+            string? result = state[$"{calculation.Updates}"]?.ToString();
+            return result;
+        }
+    }
+
+    private object? GetArgValue(string arg, ObjectNode node, ObjectNode sender)
+    {
+        var targetProperty = node.GetAllChildren().Where(c => c.Subject?.GetType().GetProperty(arg) != null && c.Equals(sender)).FirstOrDefault();
+
+        if (targetProperty != null)
+            return targetProperty.Subject?.GetType()?.GetProperty(arg)?.GetValue(targetProperty.Subject);
+
+        throw new InvalidOperationException(message: $"Value for {arg} on {node} not found.");
     }
 
     private object? GetArgValue(string arg, object subject)

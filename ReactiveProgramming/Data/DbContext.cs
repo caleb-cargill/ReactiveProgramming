@@ -52,49 +52,88 @@ public static class DbContext
                 Name = "CalculateArea",
                 Body = "Area = Side * Side",
                 Updates = "Area",
-                MemberArguments = new List<string>() { "Side" }
+                UpdatesSubject = "Square",
+                MemberArguments = new List<(string, string)>() { ("Square", "Side") }
             },
             new Calculation()
             {
                 Name = "CalculatePerimeter",
                 Body = "Perimeter = 4 * Side",
                 Updates = "Perimeter",
-                MemberArguments = new List<string>() { "Side" }
+                UpdatesSubject = "Square",
+                MemberArguments = new List<(string, string)>() { ("Square", "Side") }
             },
             new Calculation()
             {
                 Name = "CalculateDiagonal",
                 Body = "Diagonal = math.sqrt((Side * Side) + (Side * Side))",
                 Updates = "Diagonal",
-                MemberArguments = new List<string>() { "Side" }
+                UpdatesSubject = "Square",
+                MemberArguments = new List<(string, string)>() { ("Square", "Side") }
             },
             new Calculation()
             {
                 Name = "CalculateVolume",
                 Body = "Volume = Height * Height * Height",
                 Updates = "Volume",
-                MemberArguments = new List<string>() { "Height" }
+                UpdatesSubject = "Cube",
+                MemberArguments = new List<(string, string)>() { ("Cube", "Height") }
             },
             new Calculation()
             {
                 Name = "CalculateSurfaceArea",
                 Body = "SurfaceArea = 6 * Area",
                 Updates = "SurfaceArea",
-                MemberArguments = new List<string>() { "Area" }
+                UpdatesSubject = "Cube",
+                MemberArguments = new List<(string, string)>() { ("Square", "Area") }
             },
             new Calculation()
             {
                 Name = "CalculateEdgeLength",
                 Body = "EdgeLength = 12 * Height",
                 Updates = "EdgeLength",
-                MemberArguments = new List<string>() { "Height" }
+                UpdatesSubject = "Cube",
+                MemberArguments = new List<(string, string)>() { ("Cube", "Height") }
             },
             new Calculation()
             {
                 Name = "CalculateHeight",
                 Body = "Height = Side",
                 Updates = "Height",
-                MemberArguments = new List<string>() { "Side" }
+                UpdatesSubject = "Cube",
+                MemberArguments = new List<(string, string)>() { ("Square", "Side") }
+            },
+            new Calculation()
+            {
+                Name = "CalculateVolume",
+                Body = "Volume = (Height * Height * Height) * 8",
+                Updates = "Volume",
+                UpdatesSubject = "RubixCube",
+                MemberArguments = new List<(string, string)>() { ("Cube", "Height") }
+            },
+            new Calculation()
+            {
+                Name = "CalculateSurfaceArea",
+                Body = "SurfaceArea = 24 * Area",
+                Updates = "SurfaceArea",
+                UpdatesSubject = "RubixCube",
+                MemberArguments = new List<(string, string)>() { ("Square", "Area") }
+            },
+            new Calculation()
+            {
+                Name = "CalculateEdgeLength",
+                Body = "EdgeLength = 12 * Height",
+                Updates = "EdgeLength",
+                UpdatesSubject = "RubixCube",
+                MemberArguments = new List<(string, string)>() { ("RubixCube", "Height") }
+            },
+            new Calculation()
+            {
+                Name = "CalculateHeight",
+                Body = "Height = Side * 2",
+                Updates = "Height",
+                UpdatesSubject = "RubixCube",
+                MemberArguments = new List<(string, string)>() { ("Square", "Side") }
             }
         };
 }
