@@ -14,6 +14,7 @@ partial class Program
 
     private static void Test_SimpleCollectionObservable()
     {
+
         // Arrange
         var subjects = DbContext.GetSubjects();
         var members = subjects.SelectMany(s => s.Members).ToList();

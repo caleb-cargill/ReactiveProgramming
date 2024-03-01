@@ -11,4 +11,9 @@
     <PackageReference Include="NLua" Version="1.7.2" />
     <PackageReference Include="System.Reactive" Version="6.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="ObservableTests.cs" />
+    <Compile Remove="GlobalUsings.cs" />
+    <Compile Remove="CalculationTests.cs" />
+  </ItemGroup>
 </Project>
