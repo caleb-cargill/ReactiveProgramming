@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34302.85
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveProgramming", "ReactiveProgramming.csproj", "{2E551F52-AB9C-43B4-B2D2-C3E7FB593133}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactiveProgramming", "ReactiveProgramming\ReactiveProgramming.csproj", "{2E551F52-AB9C-43B4-B2D2-C3E7FB593133}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveProgramming.Tests", "ReactiveProgramming.Tests.csproj", "{463D1DB2-52E6-44B2-B0DB-2CB33B049439}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveProgramming.Tests", "ReactiveProgramming.Tests\ReactiveProgramming.Tests.csproj", "{463D1DB2-52E6-44B2-B0DB-2CB33B049439}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E16ACE76-251B-47C9-9D61-AD2F49101D1E}"
 EndProject
