@@ -20,25 +20,4 @@
   <ItemGroup>
     <ProjectReference Include="..\ReactiveProgramming\ReactiveProgramming.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Common\PropertyChangedBase.cs" />
-    <Compile Remove="Data\DbContext.cs" />
-    <Compile Remove="Data\Source.cs" />
-    <Compile Remove="Interfaces\ICalculationObject.cs" />
-    <Compile Remove="Interfaces\ICube.cs" />
-    <Compile Remove="Interfaces\IRubixCube.cs" />
-    <Compile Remove="Interfaces\ISquare.cs" />
-    <Compile Remove="CalculatorBase.cs" />
-    <Compile Remove="CalculationObserver.cs" />
-    <Compile Remove="Objects\RubixCube.cs" />
-    <Compile Remove="Objects\Cube.cs" />
-    <Compile Remove="Objects\Square.cs" />
-    <Compile Remove="Models\Subject.cs" />
-    <Compile Remove="Models\Calculation.cs" />
-    <Compile Remove="Models\Member.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="Readme.md" />
-  </ItemGroup>
 </Project>
