@@ -9,16 +9,16 @@ namespace ReactiveProgramming;
 public class ObjectNode
 {
 
-    public ICalculationObject? Subject { get; private set; }
+    public ICalculationObject? TargetCalculationObject { get; private set; }
 
-    public ObjectNode(ICalculationObject subject)
+    public ObjectNode(ICalculationObject targetObject)
     {
-        Initialize(subject);
+        Initialize(targetObject);
     }
 
-    public ObjectNode(List<ICalculationObject> subjects)
+    public ObjectNode(List<ICalculationObject> targetObjects)
     {
-        Initialize(subjects);
+        Initialize(targetObjects);
     }
 
     public Guid UniqueId { get; private set; }
@@ -34,35 +34,35 @@ public class ObjectNode
         return nodes;
     }
 
-    private void Initialize(object subject)
+    private void Initialize(object targetObject)
     {
-        if (subject is ICalculationObject co)
-            this.Subject = co;
-        else if (subject is IList li)
+        if (targetObject is ICalculationObject co)
+            this.TargetCalculationObject = co;
+        else if (targetObject is IList li)
             this.Children = li.Cast<ICalculationObject>().Select(co => new ObjectNode(co)).ToList();
         UniqueId = Guid.NewGuid();
-        Children ??= GetChildren();
+        Children ??= CreateChildrenNodes();
         ChangesObservable =
-            this.Subject != null
+            this.TargetCalculationObject != null
             ? Observable.FromEventPattern<PropertyChangedEventHandler, PropertyChangedEventArgs>(
-                    h => this.Subject.PropertyChanged += h,
-                    h => this.Subject.PropertyChanged -= h)
+                    h => this.TargetCalculationObject.PropertyChanged += h,
+                    h => this.TargetCalculationObject.PropertyChanged -= h)
                 .Select(e => new ObjectNodeChangedArgs() { Node = this, Sender = e.Sender as ICalculationObject, PropertyName = e?.EventArgs.PropertyName ?? string.Empty })
             : Children.ToObservable().SelectMany(c =>
                 Observable.FromEventPattern<PropertyChangedEventHandler, PropertyChangedEventArgs>(
-                    h => c.Subject.PropertyChanged += h,
-                    h => c.Subject.PropertyChanged -= h))
+                    h => c.TargetCalculationObject.PropertyChanged += h,
+                    h => c.TargetCalculationObject.PropertyChanged -= h))
             .Select(e => new ObjectNodeChangedArgs() { Node = this, Sender = e.Sender as ICalculationObject, PropertyName = e?.EventArgs.PropertyName ?? string.Empty });
         var observer = new ObjectObserver(GetAllChildren());
         ChangesObservable.Subscribe(observer);
     }
 
-    private List<ObjectNode> GetChildren()
-        => Subject?
+    private List<ObjectNode> CreateChildrenNodes()
+        => TargetCalculationObject?
             .GetType()
             .GetProperties()
             .Where(p => IsCalculationObjectType(p.PropertyType))
-            .Select(p => GetObjectNode(p.GetValue(Subject)))
+            .Select(p => GetObjectNode(p.GetValue(TargetCalculationObject)))
             .ToList()
             ?? new List<ObjectNode>();
 
@@ -81,7 +81,7 @@ public class ObjectNode
 
     public override string ToString()
     {
-        return $"{UniqueId} - Type: {Subject?.GetType().FullName ?? Children.GetType().FullName}";
+        return $"{UniqueId} - Type: {TargetCalculationObject?.GetType().FullName ?? Children.GetType().FullName}";
     }
 
     public override bool Equals(object? obj)

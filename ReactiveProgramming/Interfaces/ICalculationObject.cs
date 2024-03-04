@@ -4,4 +4,5 @@ namespace ReactiveProgramming;
 
 public interface ICalculationObject : INotifyPropertyChanged
 {
+    
 }

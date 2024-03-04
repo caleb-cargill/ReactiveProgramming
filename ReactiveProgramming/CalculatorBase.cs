@@ -21,24 +21,24 @@ public class CalculatorBase
     public CalculatorBase(List<ObjectNode> nodes)
     {
         this.nodes = nodes;
-        this.subjects = nodes.Select(n => n.Subject).ToList();
+        this.subjects = nodes.Select(n => n.TargetCalculationObject).ToList();
     }
 
     public void HandleObjectNodeChanged(ObjectNode node, string propName)
     {
         var calcs = DbContext.GetCalculations();
         var propertyName = propName;
-        var senderName = (node.Subject?.GetType() ?? node.Children?.GetType())?.Name;
+        var senderName = (node.TargetCalculationObject?.GetType() ?? node.Children?.GetType())?.Name;
         var toRun = calcs.Where(c => c.MemberArguments.Any(m => m.Subject == senderName && m.Member == propertyName)).ToList();
         foreach (var calc in toRun)
         {
             var target =
-                nodes.Where(n => (n.Equals(node) || n.GetAllChildren().Any(c => c.Equals(node))) && n.Subject?.GetType().GetProperty(calc.Updates) != null && n.Subject?.GetType().Name == calc.UpdatesSubject).FirstOrDefault();
+                nodes.Where(n => (n.Equals(node) || n.GetAllChildren().Any(c => c.Equals(node))) && n.TargetCalculationObject?.GetType().GetProperty(calc.Updates) != null && n.TargetCalculationObject?.GetType().Name == calc.UpdatesSubject).FirstOrDefault();
             if (target == null) return;
             var result = Calculate(node, target, calc)?.ToString();
             Console.WriteLine($"Calculation on {target}: {calc.Name} = {result}. Triggered by {propertyName}.");
-            var prop = target.GetType().GetProperty(calc.Updates);
-            prop?.SetValue(target, GetTypedValue(prop, result));
+            var prop = target.TargetCalculationObject.GetType().GetProperty(calc.Updates);
+            prop?.SetValue(target.TargetCalculationObject, GetTypedValue(prop, result));
         }
     }
 
@@ -105,10 +105,10 @@ public class CalculatorBase
 
     private object? GetArgValue(string arg, ObjectNode node, ObjectNode sender)
     {
-        var targetProperty = node.GetAllChildren().Where(c => c.Subject?.GetType().GetProperty(arg) != null && c.Equals(sender)).FirstOrDefault();
+        var targetProperty = node.GetAllChildren().Where(c => c.TargetCalculationObject?.GetType().GetProperty(arg) != null && c.Equals(sender)).FirstOrDefault();
 
         if (targetProperty != null)
-            return targetProperty.Subject?.GetType()?.GetProperty(arg)?.GetValue(targetProperty.Subject);
+            return targetProperty.TargetCalculationObject?.GetType()?.GetProperty(arg)?.GetValue(targetProperty.TargetCalculationObject);
 
         throw new InvalidOperationException(message: $"Value for {arg} on {node} not found.");
     }

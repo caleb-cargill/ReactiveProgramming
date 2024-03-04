@@ -169,39 +169,9 @@ partial class Program
         var objectobserver = new ObjectObserver(on.GetAllChildren());
         observable.Subscribe(objectobserver);
         square.Side = 10;
-    }
 
-    private void ObjectStream(ICalculationObject subject)
-    {
-        var subjects = DbContext.GetSubjects();
-
-        var objects = GetSubjects(subject).ToObservable();
-        
-    }
-
-    private List<ICalculationObject> GetSubjects(ICalculationObject subject)
-    {
-        var test = 
-            subject
-            .GetType()
-            .GetProperties()
-            .Where(p => p.PropertyType.GetInterfaces().Contains(typeof(ICalculationObject)) || (p.PropertyType.GenericTypeArguments.FirstOrDefault()?.GetInterfaces().Contains(typeof(ICalculationObject)) ?? false))
-            .Select(s => s.GetValue(subject))
-            .Cast<ICalculationObject>()
-            .ToList();
-
-        test.AddRange(
-            subject
-            .GetType()
-            .GetProperties()
-            .Where(p => (p.PropertyType.GenericTypeArguments.FirstOrDefault()?.GetInterfaces().Contains(typeof(ICalculationObject)) ?? false))            
-            .SelectMany(s => (List<ICalculationObject>)s.GetValue(subject))
-            .ToList());
-
-        test.AddRange(
-            test.SelectMany(test => GetSubjects(test)));
-
-        return test;
-    }   
+        // Assert that properties are actually changing
+        // When new properties get calculated... are they raising events???
+    }  
 
 }
